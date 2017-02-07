@@ -132,6 +132,10 @@ RUN if [ "$ODOO_VERSION" != "10.0" ]; \
         ln -s /usr/local/bin/openerp-server /usr/local/bin/odoo; \
     fi
 
+# Fix stack size overflow
+# https://github.com/python-pillow/Pillow/issues/1935
+RUN awk '/import/ { print; print "import threading; threading.stack_size(4*80*1024)"; next }1' /usr/local/bin/odoo
+
 # Upgrade pillow, old versions cause zlib issues for some reason
 RUN CFLAGS="$CFLAGS -L/lib" pip install --no-cache-dir --upgrade pillow
 
